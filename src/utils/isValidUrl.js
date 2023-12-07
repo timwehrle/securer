@@ -8,9 +8,9 @@ import {
 import isString from "../helpers/isString";
 import isOption from "../helpers/isOption";
 
-const urlOptions = {
+const DEFAULT_OPTIONS = {
     protocols: ['http:', 'https:', 'ftp:'],
-    requireTld: true, // TLD = Top Level Domain
+    requireTld: true,
     requireProtocols: true,
     requireHost: true,
     requirePort: false,
@@ -18,144 +18,86 @@ const urlOptions = {
     allowFragments: true,
     allowProtocolRelativeUrls: true,
     allowDataUrls: false,
-    allowUnderscores: false,
+    allowUnderscores: true,
     allowTrailingDot: false,
     validateLength: true,
 }
 
-export default function isValidUrl(url, options) {
-    
-    if (!isString(url)) {
-        throw new Error('Invalid URL. Please provide a valid string.');
-    }
+function isValidPort(port) {
+    const parsedPort = parseInt(port, 10);
+    return URL_PORT.test(port) && parsedPort > 0 && parsedPort <= 65535;
+}
 
+export default function isValidUrl(url, customOptions) {
+    if (!isString(url)) {
+        return false;
+    }
+    isOption(customOptions, DEFAULT_OPTIONS);
+    const options = { ...DEFAULT_OPTIONS, ...customOptions};
+    
     try {
 
-        isOption(options, urlOptions);
-        options = { ...urlOptions, ...options};
-
         const urlObject = new URL(url);
-        const urlProtocol = urlObject.protocol;
-        const urlHostname = urlObject.hostname;
-        const urlPort = urlObject.port;
-        const urlHref = urlObject.href;
-        const urlHash = urlObject.hash;
-        const urlSearch = urlObject.search;
+        const { protocol, hostname, port, href, hash, search } = urlObject;
 
-        // URL HREF //
-        if (!options.allowUnderscores && urlHref.includes('_')) {
-            console.error("Underscores are not allowed.");
-            return false;
-        } else if (options.allowUnderscores && urlHref.includes('_')) {
-            console.warn("Underscores are allowed in hostnames but not recommended.");
-        }
-
-        // URL TLD //
-        const urlTld = urlHostname.split('.').pop();
-        console.log("Tld: ", urlTld);
-        if (options.requireTld && (!urlTld || !URL_TLD.test(urlTld) || !isNaN(urlTld))) {
-            return false;
-        }
-        if (options.requireTld && urlTld.match(/^\d/)) {
+        if (options.requireProtocols && !options.protocols.includes(protocol)) {
             return false;
         }
 
-        // URL PROTOCOLS //
-        console.log("Protocol: ", urlProtocol);
-        if (options.requireProtocols && !options.protocols.includes(urlProtocol)) {
+        if (!options.allowUnderscores && href.includes('_')) {
             return false;
         }
 
-        if (urlProtocol === 'mailto:') {
-            throw new Error('Invalid URL. mailto: URLs are not allowed.');
-        }
+        const tld = hostname.split('.').pop();
 
-        if (urlProtocol === 'data:') {
-            if (options.allowDataUrls) {
-                console.warn('Data URLs are not recommended.');
-            } else {
-                return false;
-            }
-        }
-
-        // URL REGEX CHECK//
-        if (!options.protocols.includes(urlProtocol) || URL_UNALLOWED_CHARS.test(urlHref)) {
+        const isInvalidTld = options.requireTld && (!tld || !URL_TLD.test(tld) || !isNaN(tld) || tld.match(/^\d/));
+        if (isInvalidTld) {
             return false;
         }
 
-        // URL HOSTNAME //
-        if (options.requireHost && !urlHostname) {
-            throw new Error('Hostname is required.');
-        }
-
-        let hostnameParts = urlHostname.split('.');
-        let dots = hostnameParts.length - 1;
-
-        if (!URL_HOSTNAME.test(urlHostname) || dots < 1) {
-            throw new Error('Invalid hostname. A valid hostname should contain at least one dot with a valid TLD.');
-        }
-
-        for (let part of hostnameParts) {
-            if (part.startsWith('-') || part.endsWith('-')) {
-                throw new Error('Invalid hostname. A valid hostname should not start or end with a hyphen.');
-            }
-        }
-
-        if (!options.allowTrailingDot && urlHostname.endsWith('.')) {
+        if (protocol === 'mailto:' || (!options.allowDataUrls && protocol === 'data:')) {
             return false;
         }
 
-        // URL PORT //
-
-        // If port is required but not present, return false
-        if (options.requirePort && urlPort === null) {
-            console.error('Port is required but not present. Please provide a port.');
-            return false;
-        }
-        
-        // If port is present, validate its format and range 
-        if (options.requirePort && urlPort !== null) {
-            const port = parseInt(urlPort, 10);
-        
-            // Validate against a regex and numeric range
-            if (!URL_PORT.test(urlPort) || port <= 0 || port > 65535) {
-                console.error('Invalid port. Please provide a valid port between 0-65535.');
-                return false;
-            }
-        }
-
-        // URL LENGTH //
-        if (options.validateLength && urlHref.length > 2083) {
-            console.error('URL is too long. Please provide a shorter URL.');
+        if (!options.protocols.includes(protocol) || URL_UNALLOWED_CHARS.test(href)) {
             return false;
         }
 
-        // URL FRAGMENTS //
-        if (!options.allowFragments && urlHash) {
+        if (options.requireHost && !hostname) {
             return false;
         }
 
-        // URL PARAMETERS //
-        if (!options.allowParameters && urlSearch) {
+        const hostnameParts = hostname.split('.');
+        if (!URL_HOSTNAME.test(hostname) || hostnameParts.length < 2 || hostnameParts.some(part => part.startsWith('-') || part.endsWith('-'))) {
             return false;
         }
 
-        // URL PROTOCOL RELATIVE //
-        if (urlProtocol === '//:') {
-            if (options.allowProtocolRelativeUrls) {
-                console.warn('Protocol relative URLs are less secure. Please consider using a protocol.');
-            } else {
-                return false;
-            }
+        if (!options.allowTrailingDot && hostname.endsWith('.')) {
+            return false;
+        }
+
+        if (options.requirePort && (port === null || !isValidPort(port))) {
+            return false;
+        }
+
+        if (options.validateLength && href.length > 2083) {
+            return false;
+        }
+
+        if (!options.allowFragments && hash) {
+            return false;
+        }
+
+        if (!options.allowParameters && search) {
+            return false;
+        }
+
+        if (protocol === '//:' && !options.allowProtocolRelativeUrls) {
+            return false;
         }
 
         return true;
-
-
     } catch (error) {
-
         return false;
-
     }
-
 };
