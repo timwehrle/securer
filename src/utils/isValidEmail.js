@@ -17,9 +17,23 @@ export default function isValidEmail(email, customOptions) {
     const options = { ...DEFAULT_OPTIONS, ...customOptions};
 
     try {
+        if(!email.contains('@')) {
+            return false;
+        }
+       
+        const [localePart, domain] = email.split('@');
+
+        if (options.validateLength && localePart.length > 64 || domain.length > 254) {
+            return false;
+        }
+
+        if (localePart.startsWith('.') || localePart.endsWith('.') || localePart.includes('..')) {
+            return false;
+        }
 
         
-       
+        
+
 
     } catch (error) {
         return false;
