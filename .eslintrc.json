@@ -3,9 +3,11 @@
         "browser": true,
         "es2021": true
     },
-    "extends": "plugin:security/recommended",
+    "extends": ["plugin:security/recommended", "plugin:ft-flow/recommended"],
+    "parser": "hermes-eslint",
     "plugins": [
-        "security"
+        "security",
+        "ft-flow"
     ],
     "parserOptions": {
         "ecmaVersion": "latest",
