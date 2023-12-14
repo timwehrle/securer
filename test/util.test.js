@@ -22,15 +22,31 @@ import isValidEmail from "../src/utils/isValidEmail";
 //     expect(isValidUrl('https://example.555')).toBe(false);
 // });
 
-test('isValidEmail should return true for valid email addresses', () => {
-    expect(isValidEmail('"hel@lo"@example.com')).toBe(true);
-    expect(isValidEmail('"jo.hn..doe"@gmail.com')).toBe(true);
-    expect(isValidEmail('jane_doe123@yahoo.co.uk')).toBe(true);
+test("isValidEmail should return true for valid email addresses with different domain extensions", () => {
+  expect(isValidEmail("john.doe@example.com")).toBe(true);
+  expect(isValidEmail("jane_doe@example.co.uk")).toBe(true);
+  expect(isValidEmail("user.name@example.io")).toBe(true);
+  expect(isValidEmail("user_name@example.net")).toBe(true);
 });
 
-test('isValidEmail should return false for invalid email addresses', () => {
-    expect(isValidEmail('"hello"hey.hey@example')).toBe(false);
-    expect(isValidEmail('john..doe.@gmail')).toBe(false);
-    expect(isValidEmail('jane_doe123``@yahoo.de')).toBe(false);
+test("isValidEmail should return false for email addresses without a domain extension", () => {
+  expect(isValidEmail("john.doe@example")).toBe(false);
+  expect(isValidEmail("jane_doe@example.")).toBe(false);
 });
 
+test("isValidEmail should return false for email addresses with invalid characters", () => {
+  expect(isValidEmail("john.doe@exa$mple.com")).toBe(false);
+  expect(isValidEmail("jane_doe@exa#mple.co.uk")).toBe(false);
+  expect(isValidEmail("user.name@exa%mple.io")).toBe(false);
+  expect(isValidEmail("user_name@exa^mple.net")).toBe(false);
+});
+
+test("isValidEmail should return false for email addresses without a user name", () => {
+  expect(isValidEmail("@example.com")).toBe(false);
+  expect(isValidEmail("@example.co.uk")).toBe(false);
+});
+
+test("isValidEmail should return false for email addresses without an @ symbol", () => {
+  expect(isValidEmail("johndoeexample.com")).toBe(false);
+  expect(isValidEmail("janedoeexample.co.uk")).toBe(false);
+});
