@@ -20,7 +20,9 @@ describe("isValidMessage", () => {
 
   it("should return true if the message length is within the valid range", () => {
     const validMessage = "a".repeat(300);
-    expect(isValidMessage(validMessage, { minLength: 10, maxLength: 500 })).toBe(true);
+    expect(
+      isValidMessage(validMessage, { minLength: 10, maxLength: 500 }),
+    ).toBe(true);
   });
 
   it("should escape HTML if the escapeHtml option is true", () => {

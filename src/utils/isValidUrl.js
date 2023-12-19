@@ -37,6 +37,10 @@ const DEFAULT_OPTIONS: Partial<Options> = {
   validateLength: true,
 };
 
+/**
+ * Check if port is valid
+ */
+
 function isValidPort(port: string): boolean {
   const parsedPort = parseInt(port, 10);
   return URL_PORT.test(port) && parsedPort > 0 && parsedPort <= 65535;
@@ -46,6 +50,9 @@ export default function isValidUrl(
   url: string,
   customOptions?: Options,
 ): boolean {
+  /**
+   * Check if url is a string
+   */
   if (!isString(url)) {
     return false;
   }
@@ -54,6 +61,9 @@ export default function isValidUrl(
     ? { ...DEFAULT_OPTIONS, ...customOptions }
     : DEFAULT_OPTIONS;
 
+  /**
+   * Global instance of URL
+   */
   let urlObject: URL;
 
   try {
@@ -62,18 +72,35 @@ export default function isValidUrl(
     return false;
   }
 
+  /**
+   * Extract properties from the URL object
+   */
   const { protocol, hostname, port, href, hash, search } = urlObject;
 
+  /**
+   * If protocols are required and protocol is not in
+   * the list of allowed protocols, return false
+   */
   if (options.requireProtocols && !options.protocols?.includes(protocol)) {
     return false;
   }
 
+  /**
+   * If allowUnderscores is not allowed and url contains
+   * underscores, return false
+   */
   if (!options.allowUnderscores && href.includes("_")) {
     return false;
   }
 
+  /**
+   * Extract the top-level domain (TLD) from the hostname
+   */
   const tld = hostname.split(".").pop();
 
+  /**
+   * If a TLD is required and either not provided, not valid, or numeric, return false
+   */
   const isInvalidTld =
     options.requireTld &&
     (!tld || !URL_TLD.test(tld) || !isNaN(tld) || tld.match(/^\d/));
@@ -81,6 +108,9 @@ export default function isValidUrl(
     return false;
   }
 
+  /**
+   * Special handling for certain protocols that are not allowed
+   */
   if (
     protocol === "mailto:" ||
     (!options.allowDataUrls && protocol === "data:")
@@ -88,6 +118,10 @@ export default function isValidUrl(
     return false;
   }
 
+  /**
+   * If the protocol is not in the list of allowed protocols or 
+   * unallowed characters are present, return false
+   */
   if (
     !options.protocols?.includes(protocol) ||
     URL_UNALLOWED_CHARS.test(href)
@@ -95,10 +129,18 @@ export default function isValidUrl(
     return false;
   }
 
+  /**
+   * If a hostname is required and not provided, return false
+   */
   if (options.requireHost && !hostname) {
     return false;
   }
 
+  /**
+   * Split the hostname into parts for additional validation
+   * If the hostname is not valid or contains parts with leading 
+   * or trailing hyphens, return false
+   */
   const hostnameParts = hostname.split(".");
   if (
     !URL_HOSTNAME.test(hostname) ||
@@ -108,26 +150,44 @@ export default function isValidUrl(
     return false;
   }
 
+  /**
+   * If trailing dots are not allowed and the hostname ends with a dot, return false
+   */
   if (!options.allowTrailingDot && hostname.endsWith(".")) {
     return false;
   }
 
+  /**
+   * If a port is required and either not provided or not valid, return false
+   */
   if (options.requirePort && (port === null || !isValidPort(port))) {
     return false;
   }
 
+  /**
+   * If length validation is enabled and the URL length exceeds the limit, return false
+   */
   if (options.validateLength && href.length > 2083) {
     return false;
   }
 
+  /**
+   * If fragments are not allowed and a hash is present, return false
+   */
   if (!options.allowFragments && hash) {
     return false;
   }
 
+  /**
+   * If parameters are not allowed and a search string is present, return false
+   */
   if (!options.allowParameters && search) {
     return false;
   }
 
+  /**
+   * If the protocol is "//:" and protocol-relative URLs are not allowed, return false
+   */
   if (protocol === "//:" && !options.allowProtocolRelativeUrls) {
     return false;
   }

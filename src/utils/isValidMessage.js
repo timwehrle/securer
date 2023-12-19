@@ -37,8 +37,6 @@ export default function isValidMessage(
 
   const processedMessage = options.escapeHtml ? escapeHtml(message) : message;
 
-  // Additional input validation if needed
-
   if (
     options.minLength !== undefined &&
     processedMessage.length < options.minLength
