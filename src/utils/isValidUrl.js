@@ -119,7 +119,7 @@ export default function isValidUrl(
   }
 
   /**
-   * If the protocol is not in the list of allowed protocols or 
+   * If the protocol is not in the list of allowed protocols or
    * unallowed characters are present, return false
    */
   if (
@@ -138,7 +138,7 @@ export default function isValidUrl(
 
   /**
    * Split the hostname into parts for additional validation
-   * If the hostname is not valid or contains parts with leading 
+   * If the hostname is not valid or contains parts with leading
    * or trailing hyphens, return false
    */
   const hostnameParts = hostname.split(".");
