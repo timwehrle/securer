@@ -1,23 +1,23 @@
-import isValidName from "../src/utils/isValidName";
+import secure from "../src/index.js";
 
-describe("isValidName", () => {
+describe("secure.isValidName", () => {
   it("should return true for a valid name without special characters", () => {
-    expect(isValidName("John Doe")).toBe(true);
-    expect(isValidName("Alice")).toBe(true);
-    expect(isValidName("Bob Smith Jr.")).toBe(true);
+    expect(secure.isValidName("John Doe")).toBe(true);
+    expect(secure.isValidName("Alice")).toBe(true);
+    expect(secure.isValidName("Bob Smith Jr.")).toBe(true);
   });
 
   it("should return false for a name with special characters", () => {
-    expect(isValidName("John!")).toBe(false);
-    expect(isValidName("Alice#")).toBe(false);
-    expect(isValidName("Bob Smith Jr.~")).toBe(false);
+    expect(secure.isValidName("John!")).toBe(false);
+    expect(secure.isValidName("Alice#")).toBe(false);
+    expect(secure.isValidName("Bob Smith Jr.~")).toBe(false);
   });
 
   it("should return false for an empty name", () => {
-    expect(isValidName("")).toBe(false);
+    expect(secure.isValidName("")).toBe(false);
   });
 
   it("should return false for a name with only special characters", () => {
-    expect(isValidName("!@#$%^&*()")).toBe(false);
+    expect(secure.isValidName("!@#$%^&*()")).toBe(false);
   });
 });

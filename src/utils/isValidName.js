@@ -2,7 +2,7 @@
 
 import isString from "../helpers/isString";
 
-const NOT_ALLOWED_CHARS: RegExp = /[!$%&*()_+|~=\\#{}\[\]:";<>?,\/]/;
+const NOT_ALLOWED_CHARS: RegExp = /[!$%&*()_+|~=\\#{}[\]:";<>?,/]/;
 
 type Options = {
   minLength?: number,
@@ -12,7 +12,7 @@ type Options = {
 };
 
 const DEFAULT_OPTIONS: Partial<Options> = {
-  minLength: 1,
+  minLength: 2,
   maxLength: 50,
   allowAdditionalChars: false,
   allowNumbers: false,
@@ -30,13 +30,23 @@ export default function isValidName(
     ? { ...DEFAULT_OPTIONS, ...customOptions }
     : DEFAULT_OPTIONS;
 
+  /**
+   * A name doesn't contain numbers (unless explicitly allowed)
+   */
   const containsNumbers = /\d/.test(name);
   if (!options.allowNumbers && containsNumbers) {
     return false;
   }
-  
+
+  /**
+   * Remove leading and trailing whitespaces
+   */
   const trimmedName = name.trim();
 
+  /**
+   * If name is undefined or under the minimum lenght
+   * return false
+   */
   if (
     options.minLength !== undefined &&
     trimmedName.length < options.minLength
@@ -44,6 +54,10 @@ export default function isValidName(
     return false;
   }
 
+  /**
+   * If name is undefined or over the maximum lenght
+   * return false
+   */
   if (
     options.maxLength !== undefined &&
     trimmedName.length > options.maxLength
@@ -51,6 +65,10 @@ export default function isValidName(
     return false;
   }
 
+  /**
+   * If allowAdditionalChars is false and name contains
+   * not allowed characters, return false
+   */
   if (!options.allowAdditionalChars && NOT_ALLOWED_CHARS.test(trimmedName)) {
     return false;
   }
