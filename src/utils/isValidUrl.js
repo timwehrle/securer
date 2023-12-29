@@ -1,4 +1,11 @@
-// @flow strict
+/**
+ * Copyright (c) 2023 Tim Wehrle.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @flow strict
+ */
 
 const URL_UNALLOWED_CHARS: RegExp = /[\s<>\\]/;
 const URL_PORT: RegExp = /^([0-9]+)$/;
