@@ -1,0 +1,13 @@
+src
+test
+node_modules
+.dist
+.git
+.parcel-cache
+.vscode
+.babelrc
+.eslintrc.json
+.flowconfig
+.prettierignore
+package-lock.json
+SECURITY.md
