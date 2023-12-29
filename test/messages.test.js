@@ -1,4 +1,4 @@
-// @flow strict
+/* eslint-disable header/header */
 
 import isValidMessage from "../src/utils/isValidMessage";
 

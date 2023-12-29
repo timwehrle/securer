@@ -1,4 +1,5 @@
-import secure from "../src/index.js";
+/* eslint-disable header/header */
+import secure from "../src/securer.js";
 
 describe("secure.isValidName", () => {
   it("should return true for a valid name without special characters", () => {

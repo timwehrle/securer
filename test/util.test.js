@@ -1,4 +1,4 @@
-// @flow strict
+/* eslint-disable header/header */
 
 // import isValidUrl from "../src/utils/isValidUrl";
 import isValidEmail from "../src/utils/isValidEmail";
